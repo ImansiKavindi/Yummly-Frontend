@@ -5,6 +5,7 @@ import '../styles/Home.css'; // Make sure your CSS matches the layout
 
 function Home() {
   const [posts, setPosts] = useState([]);
+  const [commentCounts, setCommentCounts] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,6 +16,18 @@ function Home() {
           // Sort posts by id (most recent first)
           const sortedPosts = res.data.sort((a, b) => b.id - a.id); // Sort in descending order
           setPosts(sortedPosts);
+                    // Fetch comment counts for each post
+                    sortedPosts.forEach(post => {
+                      axios.get(`http://localhost:8080/api/posts/${post.id}/comments/count`)
+                        .then(countRes => {
+                          setCommentCounts(prevCounts => ({
+                            ...prevCounts,
+                            [post.id]: countRes.data // Assuming this returns a number
+                          }));
+                        })
+                        .catch(() => console.error('Failed to fetch comment count for post', post.id));
+                    });
+ 
         } else {
           console.error('Posts do not have id field');
           setPosts(res.data); // Set unsorted posts
@@ -22,6 +35,8 @@ function Home() {
       })
       .catch(() => alert("Failed to load posts 😭"));
   }, []);
+
+  console.log('Comment counts:', commentCounts);
 
   return (
     <div className="home-container">
@@ -61,7 +76,10 @@ function Home() {
 
               <div className="post-actions">
                 <button>❤️ Like</button>
-                <button>💬 Comment</button>
+                <button onClick={() => navigate(`/comments/${post.id}`)}>
+                  💬 Comment ({commentCounts[post.id] || 0})
+                </button>
+            
                 <button>🔗 Share</button>
               </div>
             </div>
