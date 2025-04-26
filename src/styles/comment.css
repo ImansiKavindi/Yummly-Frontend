@@ -1,0 +1,39 @@
+.comments-container {
+    margin: 20px;
+  }
+  
+  .add-comment-section textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .comment-btn, .edit-btn, .delete-btn, .cancel-btn {
+    margin-right: 8px;
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .comment-btn:hover, .edit-btn:hover, .delete-btn:hover, .cancel-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .comments-list {
+    margin-top: 20px;
+  }
+  
+  .comment-item {
+    background-color: #f9f9f9;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  
+  .comment-actions {
+    margin-top: 5px;
+  }
+  
