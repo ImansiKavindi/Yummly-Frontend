@@ -2,10 +2,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Home.css'; // Make sure your CSS matches the layout
+import '../styles/comment.css';
 
 function Home() {
   const [posts, setPosts] = useState([]);
   const [commentCounts, setCommentCounts] = useState({});
+  const [expandedPostId, setExpandedPostId] = useState(null);
+  const [comments, setComments] = useState({});
+  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,6 +42,33 @@ function Home() {
   }, []);
 
   console.log('Comment counts:', commentCounts);
+
+    // 🔽 UPDATED: Toggle and fetch comments
+    const toggleComments = (postId) => {
+      if (expandedPostId === postId) {
+        // If the same post is clicked again, close the comment section
+        setExpandedPostId(null);
+      } else {
+        // Expand the comment section for the clicked post
+        setExpandedPostId(postId);
+    
+        // If comments are not fetched already for the clicked post, fetch them
+        if (!comments[postId]) {
+          axios.get(`http://localhost:8080/api/posts/${postId}/comments`)
+            .then(res => {
+              setComments(prev => ({
+                ...prev,
+                [postId]: res.data
+              }));
+            })
+            .catch(() => console.error("Failed to load comments for post", postId));
+        }
+        
+      }
+    };
+    
+  // 🔼
+
 
   return (
     <div className="home-container">
@@ -76,12 +108,33 @@ function Home() {
 
               <div className="post-actions">
                 <button>❤️ Like</button>
-                <button onClick={() => navigate(`/comments/${post.id}`)}>
+                <button onClick={() => toggleComments(post.id)}>
                   💬 Comment ({commentCounts[post.id] || 0})
                 </button>
-            
                 <button>🔗 Share</button>
               </div>
+              
+               {/* 🔽 UPDATED: Display comments below post if expanded */}
+               {expandedPostId === post.id && (
+                <div className="comments-section">
+                  {comments[post.id] ? (
+                    comments[post.id].length > 0 ? (
+                      comments[post.id].map((comment, index) => (
+                        <div key={index} className="comment">
+                          <strong>{comment.userName}</strong>: {comment.content}
+                          {/* 🔼 FIXED: Use `comment.content` instead of `comment.text` */}
+                        </div>
+                      ))
+                    ) : (
+                      <p>No comments yet.</p>
+                    )
+                  ) : (
+                    <p>Loading comments...</p>
+                  )}
+                </div>
+              )}
+              {/* 🔼 */}
+
             </div>
           );
         })}
