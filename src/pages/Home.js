@@ -9,6 +9,7 @@ function Home() {
   const [commentCounts, setCommentCounts] = useState({});
   const [expandedPostId, setExpandedPostId] = useState(null);
   const [comments, setComments] = useState({});
+  const [newCommentText, setNewCommentText] = useState('');
   
 
   const navigate = useNavigate();
@@ -65,6 +66,35 @@ function Home() {
         }
         
       }
+
+      setNewCommentText('');
+
+    };
+
+     // ✅ NEWLY ADDED: Submit comment
+     const handleAddComment = (postId) => {
+      if (newCommentText.trim() === '') return;
+    
+      // HARDCODED USER ID TEMPORARILY
+      const userId = 0; // Replace with actual logged-in user ID
+    
+      axios.post(`http://localhost:8080/api/posts/${postId}/comments?userId=${userId}`,
+        { content: newCommentText }  // ✅ Only send content
+      )
+        .then(res => {
+          setComments(prev => ({
+            ...prev,
+            [postId]: [...(prev[postId] || []), res.data]
+          }));
+    
+          setCommentCounts(prev => ({
+            ...prev,
+            [postId]: (prev[postId] || 0) + 1
+          }));
+    
+          setNewCommentText('');
+        })
+        .catch(() => alert("Failed to add comment 😢"));
     };
     
   // 🔼
@@ -131,6 +161,17 @@ function Home() {
                   ) : (
                     <p>Loading comments...</p>
                   )}
+
+                  <div className="add-comment">
+                    <textarea
+                      rows="2"
+                      placeholder="Write a comment..."
+                      value={newCommentText}
+                      onChange={(e) => setNewCommentText(e.target.value)}
+                    />
+                    <button onClick={() => handleAddComment(post.id)}>Post Comment</button>
+                  </div>
+
                 </div>
               )}
               {/* 🔼 */}
