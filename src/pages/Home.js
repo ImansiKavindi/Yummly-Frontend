@@ -7,6 +7,8 @@ import '../styles/comment.css';
 function Home() {
   const [posts, setPosts] = useState([]);
   const [commentCounts, setCommentCounts] = useState({});
+  const [likeCounts, setLikeCounts] = useState({});
+  const [likedPosts, setLikedPosts] = useState({});
   const [expandedPostId, setExpandedPostId] = useState(null);
   const [comments, setComments] = useState({});
   const [newCommentText, setNewCommentText] = useState('');
@@ -23,12 +25,42 @@ function Home() {
       .then(res => {
         const sortedPosts = res.data.sort((a, b) => b.id - a.id);
         setPosts(sortedPosts);
+        
+        // Load saved likes from localStorage
+        const localLikes = JSON.parse(localStorage.getItem("likes") || "{}");
+        
         sortedPosts.forEach(post => {
           axios.get(`http://localhost:8080/api/posts/${post.id}/comments/count`)
             .then(countRes => {
               setCommentCounts(prev => ({ ...prev, [post.id]: countRes.data }));
             }).catch(error => {
               console.error('Comment count error:', post.id, error);
+            });
+
+          // Check if the post is liked by the current user
+          if (storedUser) {
+            axios.get(`http://localhost:8080/api/posts/${post.id}/likes/check?userId=${storedUser.id}`)
+              .then(likeRes => {
+                setLikedPosts(prev => ({ ...prev, [post.id]: likeRes.data }));
+              })
+              .catch(error => {
+                // If error, assume user hasn't liked the post
+                setLikedPosts(prev => ({ ...prev, [post.id]: false }));
+                console.error('Like check error:', post.id, error);
+              });
+          } else {
+            // If no user is logged in, use localStorage as fallback
+            setLikedPosts(prev => ({ ...prev, [post.id]: localLikes[post.id] || false }));
+          }
+
+          // Get the current like count for the post
+          axios.get(`http://localhost:8080/api/posts/${post.id}/likes/count`)
+            .then(likeCountRes => {
+              setLikeCounts(prev => ({ ...prev, [post.id]: likeCountRes.data }));
+            })
+            .catch(error => {
+              console.error('Like count error:', post.id, error);
+              setLikeCounts(prev => ({ ...prev, [post.id]: post.likeCount || 0 }));
             });
         });
       })
@@ -141,7 +173,6 @@ function Home() {
         }));
         setEditingCommentId(null);
         setEditingCommentText('');
-        // Keep the comment selected after editing
       })
       .catch(error => {
         console.error("Failed to edit comment:", error);
@@ -151,6 +182,67 @@ function Home() {
 
   const isUserComment = (comment) => {
     return storedUser && storedUser.id === comment.userId;
+  };
+
+  const toggleLike = (postId) => {
+    // Get current like status
+    const isLiked = likedPosts[postId];
+    
+    // If no user is logged in, create a basic user object
+    let user = storedUser;
+    if (!user) {
+      user = {
+        id: Math.floor(Math.random() * 10000) + 1,
+        userName: 'Anonymous'
+      };
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+    
+    // Optimistically update UI
+    const updatedLikes = {
+      ...likedPosts,
+      [postId]: !isLiked
+    };
+    
+    const updatedCounts = {
+      ...likeCounts,
+      [postId]: (likeCounts[postId] || 0) + (isLiked ? -1 : 1)
+    };
+    
+    // Ensure we don't have negative counts
+    if (updatedCounts[postId] < 0) {
+      updatedCounts[postId] = 0;
+    }
+    
+    setLikedPosts(updatedLikes);
+    setLikeCounts(updatedCounts);
+    localStorage.setItem("likes", JSON.stringify(updatedLikes));
+    
+    // Call the toggle endpoint
+    axios.post(`http://localhost:8080/api/posts/${postId}/likes/toggle?userId=${user.id}`)
+      .then(response => {
+        console.log("Toggle like response:", response.data);
+        // Refresh like count after toggle
+        refreshLikeCount(postId);
+      })
+      .catch(error => {
+        console.error("Failed to toggle like:", error);
+        // Revert UI changes on error
+        setLikedPosts(prev => ({ ...prev, [postId]: isLiked }));
+        setLikeCounts(prev => ({ ...prev, [postId]: likeCounts[postId] }));
+        alert("Failed to update like status 😢");
+      });
+  };
+  
+  // Helper function to refresh like count for a post
+  const refreshLikeCount = (postId) => {
+    axios.get(`http://localhost:8080/api/posts/${postId}/likes/count`)
+      .then(response => {
+        setLikeCounts(prev => ({ ...prev, [postId]: response.data }));
+      })
+      .catch(error => {
+        console.error("Failed to refresh like count:", error);
+      });
   };
 
   return (
@@ -170,6 +262,7 @@ function Home() {
         {posts.length > 0 ? (
           posts.map(post => {
             const avatarUrl = `https://api.dicebear.com/7.x/thumbs/svg?seed=${encodeURIComponent(post.userName || 'user')}`;
+            const isLiked = likedPosts[post.id];
 
             return (
               <div key={post.id} className="post-card">
@@ -191,7 +284,26 @@ function Home() {
                 <p className="post-description">{post.description}</p>
 
                 <div className="post-actions">
-                  <button>❤️ Like</button>
+                  <button
+                    className="heart-button"
+                    onClick={() => toggleLike(post.id)}
+                    aria-label={isLiked ? "Unlike post" : "Like post"}
+                  >
+                    <svg 
+                      className="heart-icon" 
+                      viewBox="0 0 24 24" 
+                      width="24" 
+                      height="24" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      fill={isLiked ? "red" : "none"} 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    <span className="like-count">{likeCounts[post.id] || 0}</span>
+                  </button>
                   <button onClick={() => toggleComments(post.id)}>
                     💬 Comment ({commentCounts[post.id] || 0})
                   </button>
@@ -199,59 +311,77 @@ function Home() {
                 </div>
 
                 {expandedPostId === post.id && (
-                  <div className="comments-section">
+                  <div className="comments-container">
                     {comments[post.id] ? (
                       comments[post.id].length > 0 ? (
-                        comments[post.id].map((comment, index) => (
-                          <div
-                            key={index}
-                            className={`comment ${isUserComment(comment) ? 'user-comment' : ''} ${selectedCommentId === comment.id ? 'selected-comment' : ''}`}
-                            onClick={() => {
-                              if (isUserComment(comment)) {
-                                if (selectedCommentId === comment.id) {
-                                  setSelectedCommentId(null); // Deselect if already selected
-                                } else {
-                                  setSelectedCommentId(comment.id); // Select this comment
+                        <div className="comments-list">
+                          {comments[post.id].map((comment, index) => (
+                            <div
+                              key={index}
+                              className={`comment-item ${isUserComment(comment) ? 'user-comment' : ''} ${selectedCommentId === comment.id ? 'selected-comment' : ''}`}
+                              onClick={() => {
+                                if (isUserComment(comment)) {
+                                  setSelectedCommentId(selectedCommentId === comment.id ? null : comment.id);
                                 }
-                              }
-                            }}
-                          >
-                            <strong>{comment.username || comment.userName || 'Anonymous'}</strong>:&nbsp;
-                            {editingCommentId === comment.id ? (
-                              <>
-                                <input
-                                  value={editingCommentText}
-                                  onChange={(e) => setEditingCommentText(e.target.value)}
-                                  onClick={(e) => e.stopPropagation()} // Prevent comment deselection
-                                />
-                                <button onClick={(e) => {
-                                  e.stopPropagation(); // Prevent comment deselection
-                                  handleSaveEdit(post.id, comment.id);
-                                }}>Save</button>
-                                <button onClick={(e) => {
-                                  e.stopPropagation(); // Prevent comment deselection
-                                  setEditingCommentId(null);
-                                }}>Cancel</button>
-                              </>
-                            ) : (
-                              <>
-                                {comment.content}
-                                {isUserComment(comment) && selectedCommentId === comment.id && (
-                                  <div className="comment-actions">
-                                    <button onClick={(e) => {
-                                      e.stopPropagation(); // Prevent comment deselection
-                                      handleEditComment(comment.id, comment.content);
-                                    }}>Edit</button>
-                                    <button onClick={(e) => {
-                                      e.stopPropagation(); // Prevent comment deselection
-                                      handleDeleteComment(post.id, comment.id);
-                                    }}>Delete</button>
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        ))
+                              }}
+                            >
+                              <strong>{comment.username || comment.userName || 'Anonymous'}</strong>:&nbsp;
+                              {editingCommentId === comment.id ? (
+                                <>
+                                  <input
+                                    value={editingCommentText}
+                                    onChange={(e) => setEditingCommentText(e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                  <button
+                                    className="comment-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleSaveEdit(post.id, comment.id);
+                                    }}
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    className="cancel-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditingCommentId(null);
+                                    }}
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  {comment.content}
+                                  {isUserComment(comment) && selectedCommentId === comment.id && (
+                                    <div className="comment-actions">
+                                      <button
+                                        className="edit-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleEditComment(comment.id, comment.content);
+                                        }}
+                                      >
+                                        Edit
+                                      </button>
+                                      <button
+                                        className="delete-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDeleteComment(post.id, comment.id);
+                                        }}
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       ) : (
                         <p>No comments yet. Be the first to comment!</p>
                       )
@@ -259,14 +389,16 @@ function Home() {
                       <p>Loading comments...</p>
                     )}
 
-                    <div className="add-comment">
+                    <div className="add-comment-section">
                       <textarea
                         rows="2"
                         placeholder="Write a comment..."
                         value={newCommentText}
                         onChange={(e) => setNewCommentText(e.target.value)}
                       />
-                      <button onClick={() => handleAddComment(post.id)}>Post Comment</button>
+                      <button className="comment-btn" onClick={() => handleAddComment(post.id)}>
+                        Post Comment
+                      </button>
                     </div>
                   </div>
                 )}
@@ -274,7 +406,7 @@ function Home() {
             );
           })
         ) : (
-          <p>Loading posts...</p>
+          <p>No posts to display. Please check back later.</p>
         )}
       </div>
     </div>
