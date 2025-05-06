@@ -36,4 +36,148 @@
   .comment-actions {
     margin-top: 5px;
   }
-  
+  .comment.selected {
+    background-color: #f0f8ff;
+    border-left: 4px solid #007bff;
+    padding-left: 8px;
+  }
+  /* Add these styles to your comment.css file */
+
+.comment {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.user-comment {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.comment-actions {
+  display: inline-flex;
+  margin-left: 10px;
+}
+
+.comment-actions button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin-left: 8px;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+.comment-actions button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.add-comment {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.add-comment textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.add-comment button {
+  background-color: #4267B2;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #ccc;
+  margin-right: 10px;
+}
+
+.comment-username {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.95rem;
+}
+.comment-timestamp {
+  font-size: 0.75rem;
+  color: #999;
+  margin-left: 8px;
+}
+.comment-item {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.comment-item:hover {
+  background-color: #eef6ff;
+  transform: scale(1.01);
+}
+@media (max-width: 600px) {
+  .comment-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .add-comment textarea {
+    font-size: 0.9rem;
+  }
+
+  .comment-actions button {
+    font-size: 0.75rem;
+    margin-left: 0;
+    margin-top: 4px;
+  }
+}
+.comment-error {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.comment-success {
+  color: #28a745;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+.comment.editing {
+  border: 1px dashed #007bff;
+  background-color: #f0f8ff;
+}
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover {
+  opacity: 0.85;
+}
