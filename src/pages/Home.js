@@ -49,13 +49,21 @@ function Home() {
 
               <h3 className="post-title">{post.title}</h3>
 
-              {post.imagePath && (
-                <img
-                  src={`http://localhost:8080/uploads/${post.imagePath}`}
-                  alt="post"
-                  className="post-image"
-                />
-              )}
+              {(post.videoPath || post.imagePath) && (
+  post.videoPath ? (
+    <video controls className="post-video">
+      <source src={`http://localhost:8080/uploads/${post.videoPath}`} type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  ) : (
+    <img
+      src={`http://localhost:8080/uploads/${post.imagePath}`}
+      alt="post"
+      className="post-image"
+    />
+  )
+)}
+
 
               <p className="post-description">{post.description}</p>
 
