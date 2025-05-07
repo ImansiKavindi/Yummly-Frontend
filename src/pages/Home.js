@@ -327,13 +327,22 @@ function Home() {
 
                 <h3 className="post-title">{post.title}</h3>
 
+               
                 {post.imagePath && (
-                  <img
-                    src={`http://localhost:8080/uploads/${post.imagePath}`}
-                    alt="post"
-                    className="post-image"
-                  />
+                  <div>
+                    <img
+                      src={`http://localhost:8080/uploads/${post.imagePath}`}
+                      alt="Post"
+                    />
+                  </div>
                 )}
+
+                {post.videoPath && (
+                  <div>
+                    <video controls src={`http://localhost:8080/uploads/${post.videoPath}`} />
+                  </div>
+                )}
+
 
                 <p className="post-description">{post.description}</p>
 
