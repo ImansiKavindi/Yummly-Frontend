@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import { UserProvider } from './pages/UserContext'; 
 import Profile from './pages/Profile';
 import CreatePost from './pages/CreatePost';
+import Comments from './pages/Comments';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/create" element={<CreatePost />} />
+        <Route path="/post/:postId/comments" element={<Comments />} />
       </Routes>
     </Router>
     </UserProvider>
