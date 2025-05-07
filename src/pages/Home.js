@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
 import '../styles/comment.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
 
 function Home() {
   const [posts, setPosts] = useState([]);
@@ -66,7 +69,7 @@ function Home() {
       })
       .catch(error => {
         console.error("Failed to load posts:", error);
-        alert("Failed to load posts 😭");
+        toast.error("Failed to load posts 😭");
       });
   }, []);
 
@@ -91,7 +94,7 @@ function Home() {
   };
 
   const handleAddComment = (postId) => {
-    if (newCommentText.trim() === '') return alert("Please enter a comment");
+    if (newCommentText.trim() === '') return toast.warning("Please enter a comment");
 
     let user = storedUser;
     const finalCommentAuthor = commentAuthor.trim() || (storedUser?.userName || 'Anonymous');
@@ -125,34 +128,62 @@ function Home() {
           [postId]: (prev[postId] || 0) + 1
         }));
         setNewCommentText('');
+        toast.success("Comment added successfully!");
       })
       .catch(error => {
         console.error("Failed to add comment:", error);
-        alert("Failed to add comment 😢");
+        toast.error("Failed to add comment 😢");
       });
   };
 
   const handleDeleteComment = (postId, commentId) => {
-    if (!window.confirm("Are you sure you want to delete this comment?")) {
-      return;
-    }
-
-    axios.delete(`http://localhost:8080/api/posts/${postId}/comments/${commentId}`)
-      .then(() => {
-        setComments(prev => ({
-          ...prev,
-          [postId]: prev[postId].filter(comment => comment.id !== commentId)
-        }));
-        setCommentCounts(prev => ({
-          ...prev,
-          [postId]: (prev[postId] || 1) - 1
-        }));
-        setSelectedCommentId(null);
-      })
-      .catch(error => {
-        console.error("Failed to delete comment:", error);
-        alert("Failed to delete comment 😢");
-      });
+    // Use SweetAlert2 for a beautiful confirmation dialog
+    Swal.fire({
+      title: 'Delete Comment',
+      text: 'Are you sure you want to delete this comment?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // User confirmed, proceed with deletion
+        axios.delete(`http://localhost:8080/api/posts/${postId}/comments/${commentId}`)
+          .then(() => {
+            setComments(prev => ({
+              ...prev,
+              [postId]: prev[postId].filter(comment => comment.id !== commentId)
+            }));
+            setCommentCounts(prev => ({
+              ...prev,
+              [postId]: (prev[postId] || 1) - 1
+            }));
+            setSelectedCommentId(null);
+            
+            // Show success message with SweetAlert2
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'Your comment has been deleted.',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            });
+          })
+          .catch(error => {
+            console.error("Failed to delete comment:", error);
+            
+            // Show error message with SweetAlert2
+            Swal.fire({
+              title: 'Error!',
+              text: 'Failed to delete comment.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          });
+      }
+    });
   };
 
   const handleEditComment = (commentId, currentText) => {
@@ -161,7 +192,7 @@ function Home() {
   };
 
   const handleSaveEdit = (postId, commentId) => {
-    if (editingCommentText.trim() === '') return alert("Comment cannot be empty");
+    if (editingCommentText.trim() === '') return toast.warning("Comment cannot be empty");
 
     axios.put(`http://localhost:8080/api/posts/${postId}/comments/${commentId}?newContent=${encodeURIComponent(editingCommentText)}`)
       .then(() => {
@@ -173,10 +204,11 @@ function Home() {
         }));
         setEditingCommentId(null);
         setEditingCommentText('');
+        toast.success("Comment updated successfully!");
       })
       .catch(error => {
         console.error("Failed to edit comment:", error);
-        alert("Failed to edit comment 😢");
+        toast.error("Failed to edit comment 😢");
       });
   };
 
@@ -230,7 +262,7 @@ function Home() {
         // Revert UI changes on error
         setLikedPosts(prev => ({ ...prev, [postId]: isLiked }));
         setLikeCounts(prev => ({ ...prev, [postId]: likeCounts[postId] }));
-        alert("Failed to update like status 😢");
+        toast.error("Failed to update like status 😢");
       });
   };
   
@@ -245,8 +277,30 @@ function Home() {
       });
   };
 
+  // Function to share post on WhatsApp
+  const shareOnWhatsApp = (post) => {
+    // Base URL of your application (change this in production)
+    const baseUrl = window.location.origin;
+    
+    // Create post URL - assuming you'd have a route like /post/[id]
+    // Modify this URL structure based on your actual routing setup
+    const postUrl = `${baseUrl}/post/${post.id}`;
+    
+    // Create shareable text content with the link more prominently displayed
+    // WhatsApp will automatically make this URL clickable in the chat
+    const text = `Check out this post: "${post.title}"\n\n${post.description}\n\n${postUrl}`;
+    
+    // Create WhatsApp share URL
+    const shareUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    
+    // Open WhatsApp share in a new window
+    window.open(shareUrl, '_blank');
+    toast.info("Sharing post on WhatsApp");
+  };
+
   return (
     <div className="home-container">
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <div className="page-header"></div>
 
       <div className="action-buttons">
@@ -307,7 +361,7 @@ function Home() {
                   <button onClick={() => toggleComments(post.id)}>
                     💬 Comment ({commentCounts[post.id] || 0})
                   </button>
-                  <button>🔗 Share</button>
+                  <button onClick={() => shareOnWhatsApp(post)}>🔗 Share</button>
                 </div>
 
                 {expandedPostId === post.id && (
