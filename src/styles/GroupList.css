@@ -1,197 +1,308 @@
 .group-list-container {
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
 }
 
 .group-list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-.group-list-header h2 {
-  margin: 0;
-  color: #333;
-  font-size: 24px;
+.page-title {
+  color: #8e24aa;
+  font-size: 2.2rem;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
 }
 
-.create-group-btn {
-  background-color: #FF6B35;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  text-decoration: none;
-  transition: background-color 0.2s;
-}
-
-.create-group-btn:hover {
-  background-color: #E85A2A;
-  text-decoration: none;
-  color: white;
-}
-
-.group-list-filters {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.filter-btn {
-  background-color: #f1f1f1;
-  border: 1px solid #ddd;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-btn.active {
-  background-color: #FF6B35;
-  color: white;
-  border-color: #FF6B35;
-}
-
-.filter-btn:hover {
-  background-color: #e0e0e0;
-}
-
-.filter-btn.active:hover {
-  background-color: #E85A2A;
+.page-description {
+  color: #666;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .group-search {
-  margin-bottom: 20px;
+  position: relative;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.group-search form {
-  display: flex;
-  gap: 10px;
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8e24aa;
+  opacity: 0.7;
 }
 
-.group-search input {
-  flex: 1;
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
+.search-input {
+  width: 100%;
+  padding: 12px 20px 12px 45px;
+  border-radius: 50px;
+  border: 2px solid #eee;
+  font-size: 1rem;
+  transition: all 0.3s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-.group-search button {
-  background-color: #333;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0 20px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.group-search button:hover {
-  background-color: #555;
-}
-
-.error-message {
-  background-color: #FFEBEE;
-  color: #D32F2F;
-  padding: 10px 15px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.loading, .no-groups {
-  text-align: center;
-  padding: 30px;
-  color: #666;
+.search-input:focus {
+  outline: none;
+  border-color: #8e24aa;
+  box-shadow: 0 2px 15px rgba(142, 36, 170, 0.1);
 }
 
 .group-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
 }
 
 .group-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
   background-color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .group-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
 }
 
-.group-card h3 {
-  margin-top: 0;
-  color: #333;
-  font-size: 20px;
-}
-
-.group-card .cuisine-type {
-  color: #FF6B35;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.group-card .description {
-  color: #666;
-  margin-bottom: 15px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+.group-card-image {
+  height: 180px;
   overflow: hidden;
+  position: relative;
 }
 
-.group-meta {
+.group-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+
+.group-card:hover .group-card-image img {
+  transform: scale(1.05);
+}
+
+.no-image {
+  width: 100%;
+  height: 100%;
   display: flex;
-  justify-content: space-between;
-  color: #777;
-  font-size: 14px;
-  margin-bottom: 15px;
+  align-items: center;
+  justify-content: center;
+  background-color: #8e24aa;
+  color: white;
+}
+
+.no-image span {
+  font-size: 3.5rem;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.group-card-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.group-name {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.group-cuisine {
+  color: #8e24aa;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.group-description-preview {
+  color: #666;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+  line-height: 1.5;
+}
+
+.group-card-actions {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.view-group-btn, .chat-group-btn, .join-group-btn, .leave-group-btn, .edit-group-btn, .members-group-btn, .delete-group-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  text-decoration: none;
 }
 
 .view-group-btn {
-  display: block;
-  text-align: center;
-  background-color: #f1f1f1;
-  color: #333;
-  padding: 8px 0;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background-color 0.2s;
+  background-color: #2196F3;
+  color: white;
 }
 
 .view-group-btn:hover {
-  background-color: #e0e0e0;
-  text-decoration: none;
-  color: #333;
+  background-color: #1976D2;
 }
 
+.chat-group-btn {
+  background-color: #8e24aa;
+  color: white;
+}
+
+.chat-group-btn:hover {
+  background-color: #7b1fa2;
+}
+
+.join-group-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.join-group-btn:hover {
+  background-color: #43a047;
+}
+
+.leave-group-btn {
+  background-color: #ff9800;
+  color: white;
+}
+
+.leave-group-btn:hover {
+  background-color: #f57c00;
+}
+
+.edit-group-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.edit-group-btn:hover {
+  background-color: #1976D2;
+}
+
+.members-group-btn {
+  background-color: #ff9800;
+  color: white;
+}
+
+.members-group-btn:hover {
+  background-color: #f57c00;
+}
+
+.delete-group-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.delete-group-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Floating Action Button (FAB) */
+.create-group-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #8e24aa;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s;
+  text-decoration: none;
+  z-index: 1000;
+}
+
+.create-group-fab:hover {
+  background-color: #7b1fa2;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.create-group-fab svg {
+  font-size: 1.5rem;
+}
+
+.no-groups {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  margin-top: 2rem;
+}
+
+.no-groups p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.create-group-btn {
+  background-color: #8e24aa;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.create-group-btn:hover {
+  background-color: #7b1fa2;
+}
+
+.loading, .error-message {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.error-message {
+  color: #f44336;
+}
+
+/* Responsive styles */
 @media (max-width: 768px) {
-  .group-list-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .group-list-filters {
-    overflow-x: auto;
-    padding-bottom: 5px;
-    width: 100%;
-  }
-  
-  .group-search form {
-    flex-direction: column;
-  }
-  
   .group-cards {
     grid-template-columns: 1fr;
+  }
+  
+  .page-title {
+    font-size: 1.8rem;
+  }
+  
+  .group-card-actions {
+    flex-direction: column;
   }
 } 

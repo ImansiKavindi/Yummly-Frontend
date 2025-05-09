@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import GroupService from '../services/GroupService';
+import GroupMessages from './GroupMessages';
+import GroupNav from './GroupNav';
+import { useUser } from '../pages/UserContext';
 import Swal from 'sweetalert2';
 import '../styles/GroupDetail.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrashAlt, faExchangeAlt, faUserPlus, faSignOutAlt, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 const GroupDetail = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
+  const { user } = useUser();
   const [group, setGroup] = useState(null);
   const [members, setMembers] = useState([]);
   const [moderators, setModerators] = useState([]);
@@ -17,13 +23,33 @@ const GroupDetail = () => {
     isModerator: false,
     isAdmin: false
   });
+  const [activeTab, setActiveTab] = useState('about');
   
-  // Mock user ID (would come from auth context in a real app)
-  const currentUserId = 1;
+  // Get current user ID from context
+  const currentUserId = user ? user.id : null;
 
   useEffect(() => {
+    // Redirect to login if not authenticated
+    if (!user) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Authentication Required',
+        text: 'You need to log in to view group details',
+        confirmButtonText: 'Go to Login'
+      }).then(() => {
+        navigate('/');
+      });
+      return;
+    }
+    
+    // Get the requested tab from URL hash, if any
+    const hash = window.location.hash.substring(1);
+    if (hash === 'messages') {
+      setActiveTab('messages');
+    }
+    
     loadGroupData();
-  }, [groupId]);
+  }, [groupId, currentUserId, user, navigate]);
 
   const loadGroupData = async () => {
     setLoading(true);
@@ -213,6 +239,41 @@ const GroupDetail = () => {
     }
   };
 
+  const handleRemoveMember = async (userId) => {
+    try {
+      const result = await Swal.fire({
+        icon: 'warning',
+        title: 'Remove Member?',
+        text: 'Are you sure you want to remove this member from the group?',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Remove',
+        cancelButtonText: 'Cancel'
+      });
+      
+      if (result.isConfirmed) {
+        await GroupService.removeMember(groupId, userId, currentUserId);
+        Swal.fire({
+          icon: 'success',
+          title: 'Member Removed',
+          text: 'The member has been removed from the group'
+        });
+        loadGroupData(); // Refresh data
+      }
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to Remove Member',
+        text: 'There was an error removing the member'
+      });
+      console.error('Error removing member:', err);
+    }
+  };
+
+  const switchTab = (tab) => {
+    setActiveTab(tab);
+    window.location.hash = tab;
+  };
+
   if (loading) {
     return <div className="loading">Loading group details...</div>;
   }
@@ -230,90 +291,135 @@ const GroupDetail = () => {
 
   return (
     <div className="group-detail-container">
+      <GroupNav />
+      
       <div className="group-header">
-        <h2>{group.name}</h2>
-        <p className="cuisine-type">Cuisine: {group.cuisineType}</p>
-      </div>
-      
-      <div className="group-actions">
-        {!userRole.isMember && (
-          <button className="join-btn" onClick={handleJoinGroup}>Join Group</button>
-        )}
+        <div className="group-header-content">
+          <div className="group-header-image">
+            {group.imageUrl ? (
+              <img src={group.imageUrl} alt={group.name} />
+            ) : (
+              <div className="no-image">
+                <span>{group.name.charAt(0)}</span>
+              </div>
+            )}
+          </div>
+          <div className="group-header-text">
+            <h2>{group.name}</h2>
+            <p className="cuisine-type">Cuisine: {group.cuisineType}</p>
+          </div>
+        </div>
         
-        {userRole.isMember && !userRole.isAdmin && (
-          <button className="leave-btn" onClick={handleLeaveGroup}>Leave Group</button>
-        )}
-        
-        {userRole.isAdmin && (
-          <>
-            <button className="edit-btn" onClick={() => navigate(`/groups/${groupId}/edit`)}>
-              Edit Group
+        <div className="group-actions">
+          {!userRole.isMember && (
+            <button className="join-btn" onClick={handleJoinGroup}>
+              <FontAwesomeIcon icon={faUserPlus} /> Join Group
             </button>
-            <button className="transfer-btn" onClick={handleTransferOwnership}>
-              Transfer Ownership
+          )}
+          
+          {userRole.isMember && !userRole.isAdmin && (
+            <button className="leave-btn" onClick={handleLeaveGroup}>
+              <FontAwesomeIcon icon={faSignOutAlt} /> Leave Group
             </button>
-            <button className="delete-btn" onClick={handleDeleteGroup}>
-              Delete Group
-            </button>
-          </>
-        )}
-      </div>
-      
-      <div className="group-description">
-        <h3>About</h3>
-        <p>{group.description}</p>
-      </div>
-      
-      <div className="group-members">
-        <h3>Members ({members.length})</h3>
-        <div className="members-list">
-          {members.map(member => (
-            <div key={member.id} className="member-card">
-              <span className="member-name">{member.name}</span>
-              {member.id === group.adminId && (
-                <span className="admin-badge">Admin</span>
-              )}
-              {isModerator(member.id) && member.id !== group.adminId && (
-                <span className="moderator-badge">Moderator</span>
-              )}
-              
-              {userRole.isAdmin && member.id !== currentUserId && member.id !== group.adminId && (
-                <>
-                  {!isModerator(member.id) ? (
-                    <button 
-                      className="make-moderator-btn"
-                      onClick={() => handleAddModerator(member.id)}
-                    >
-                      Make Moderator
-                    </button>
-                  ) : (
-                    <button 
-                      className="remove-moderator-btn"
-                      onClick={() => handleRemoveModerator(member.id)}
-                    >
-                      Remove Moderator
-                    </button>
-                  )}
-                </>
-              )}
+          )}
+          
+          {userRole.isAdmin && (
+            <div className="admin-buttons">
+              <button className="edit-btn" onClick={() => navigate(`/groups/${groupId}/edit`)}>
+                <FontAwesomeIcon icon={faPenToSquare} /> Edit
+              </button>
+              <button className="transfer-btn" onClick={handleTransferOwnership}>
+                <FontAwesomeIcon icon={faExchangeAlt} /> Transfer
+              </button>
+              <button className="delete-btn" onClick={handleDeleteGroup}>
+                <FontAwesomeIcon icon={faTrashAlt} /> Delete
+              </button>
             </div>
-          ))}
+          )}
         </div>
       </div>
       
-      <div className="group-discussions">
-        <h3>Discussions</h3>
+      <div className="group-tabs">
+        <button 
+          className={`group-tab ${activeTab === 'about' ? 'active' : ''}`}
+          onClick={() => switchTab('about')}
+        >
+          About
+        </button>
         {userRole.isMember && (
           <button 
-            className="new-discussion-btn"
-            onClick={() => navigate(`/groups/${groupId}/discussions/create`)}
+            className={`group-tab ${activeTab === 'messages' ? 'active' : ''}`}
+            onClick={() => switchTab('messages')}
           >
-            Start New Discussion
+            Messages
           </button>
         )}
-        {/* Discussion list would go here */}
-        <p className="placeholder">Discussions feature coming soon...</p>
       </div>
+      
+      {activeTab === 'about' && (
+        <>
+          <div className="group-description">
+            <h3>About this Group</h3>
+            <p>{group.description}</p>
+          </div>
+          
+          <div className="group-members">
+            <h3>Members ({members.length})</h3>
+            <ul className="members-list">
+              {members.map(member => (
+                <li key={member.id} className="member-item">
+                  <span className="member-name">
+                    {member.name}
+                    {group.adminId === member.id && <span className="admin-badge">Admin</span>}
+                    {isModerator(member.id) && <span className="moderator-badge">Moderator</span>}
+                  </span>
+                  
+                  {/* Member actions for moderators and admin */}
+                  {(userRole.isAdmin || (userRole.isModerator && !isModerator(member.id) && group.adminId !== member.id)) && (
+                    <div className="member-actions">
+                      {/* Remove member button */}
+                      {group.adminId !== member.id && member.id !== currentUserId && (
+                        <button 
+                          className="remove-member-btn"
+                          onClick={() => handleRemoveMember(member.id)}
+                          title="Remove member"
+                        >
+                          Remove
+                        </button>
+                      )}
+                      
+                      {/* Moderator toggle button (admin only) */}
+                      {userRole.isAdmin && member.id !== currentUserId && (
+                        isModerator(member.id) ? (
+                          <button 
+                            className="toggle-mod-btn"
+                            onClick={() => handleRemoveModerator(member.id)}
+                            title="Remove moderator role"
+                          >
+                            Remove Mod
+                          </button>
+                        ) : (
+                          <button 
+                            className="toggle-mod-btn"
+                            onClick={() => handleAddModerator(member.id)}
+                            title="Add moderator role"
+                          >
+                            Make Mod
+                          </button>
+                        )
+                      )}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
+      )}
+      
+      {activeTab === 'messages' && userRole.isMember && (
+        <GroupMessages groupId={groupId} userRole={userRole} />
+      )}
     </div>
   );
 };

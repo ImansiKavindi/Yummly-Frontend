@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import GroupService from '../services/GroupService';
+import GroupNav from './GroupNav';
+import { useUser } from '../pages/UserContext';
 import Swal from 'sweetalert2';
 import '../styles/CreateGroup.css'; // Reusing the CreateGroup styles
 
 const EditGroup = () => {
   const navigate = useNavigate();
   const { groupId } = useParams();
+  const { user } = useUser();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    cuisineType: ''
+    cuisineType: '',
+    imageUrl: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Mock user ID (would come from auth context in a real app)
-  const currentUserId = 1;
+  // Get current user ID from context
+  const currentUserId = user ? user.id : null;
   
   // List of common cuisine types for select dropdown
   const cuisineTypes = [
@@ -49,7 +53,8 @@ const EditGroup = () => {
         setFormData({
           name: response.data.name,
           description: response.data.description,
-          cuisineType: response.data.cuisineType
+          cuisineType: response.data.cuisineType,
+          imageUrl: response.data.imageUrl || ''
         });
       } catch (err) {
         Swal.fire({
@@ -143,7 +148,9 @@ const EditGroup = () => {
 
   return (
     <div className="create-group-container">
-      <h2>Edit Community Group</h2>
+      <GroupNav />
+      
+      <h2 className="page-title">Edit Community Group</h2>
       
       <form onSubmit={handleSubmit} className="create-group-form">
         <div className="form-group">
@@ -176,6 +183,21 @@ const EditGroup = () => {
             ))}
           </select>
           {errors.cuisineType && <span className="error-message">{errors.cuisineType}</span>}
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="imageUrl">Image URL (Optional)</label>
+          <input
+            type="text"
+            id="imageUrl"
+            name="imageUrl"
+            value={formData.imageUrl}
+            onChange={handleChange}
+            placeholder="https://example.com/image.jpg"
+            className={errors.imageUrl ? 'error' : ''}
+          />
+          {errors.imageUrl && <span className="error-message">{errors.imageUrl}</span>}
+          <span className="form-hint">Add an image URL to represent your group</span>
         </div>
         
         <div className="form-group">

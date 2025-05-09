@@ -115,14 +115,25 @@ const GroupList = () => {
         <div className="group-cards">
           {groups.map(group => (
             <div key={group.id} className="group-card">
-              <h3>{group.name}</h3>
-              <p className="cuisine-type">Cuisine: {group.cuisineType}</p>
-              <p className="description">{group.description}</p>
-              <div className="group-meta">
-                <span>Members: {group.memberCount}</span>
-                <span>Admin: {group.adminName}</span>
+              <div className="group-card-image">
+                {group.imageUrl ? (
+                  <img src={group.imageUrl} alt={group.name} />
+                ) : (
+                  <div className="group-card-image-placeholder">
+                    <i className="fa fa-cutlery"></i>
+                  </div>
+                )}
               </div>
-              <Link to={`/groups/${group.id}`} className="view-group-btn">View Group</Link>
+              <div className="group-card-content">
+                <h3>{group.name}</h3>
+                <p className="cuisine-type">Cuisine: {group.cuisineType}</p>
+                <p className="description">{group.description}</p>
+                <div className="group-meta">
+                  <span><i className="fa fa-users"></i> {group.memberCount} members</span>
+                  <span><i className="fa fa-user"></i> {group.adminName}</span>
+                </div>
+                <Link to={`/groups/${group.id}`} className="view-group-btn">View Group</Link>
+              </div>
             </div>
           ))}
         </div>

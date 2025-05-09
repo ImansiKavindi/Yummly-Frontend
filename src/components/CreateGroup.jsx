@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GroupService from '../services/GroupService';
+import GroupNav from './GroupNav';
+import { useUser } from '../pages/UserContext';
 import Swal from 'sweetalert2';
 import '../styles/CreateGroup.css';
 
 const CreateGroup = () => {
   const navigate = useNavigate();
+  const { user } = useUser();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    cuisineType: ''
+    cuisineType: '',
+    imageUrl: ''
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Mock user ID (would come from auth context in a real app)
-  const currentUserId = 1;
+  // Get current user ID from context
+  const currentUserId = user ? user.id : null;
   
   // List of common cuisine types for select dropdown
   const cuisineTypes = [
@@ -65,38 +69,37 @@ const CreateGroup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-    
     setIsSubmitting(true);
+    
     try {
       const response = await GroupService.createGroup(formData, currentUserId);
       
+      setIsSubmitting(false);
       Swal.fire({
         icon: 'success',
-        title: 'Group Created!',
-        text: 'Your new community group has been created successfully.'
+        title: 'Group Created',
+        text: 'Your group has been created successfully!'
       });
       
-      // Redirect to the new group's page
+      // Navigate to the new group
       navigate(`/groups/${response.data.id}`);
     } catch (err) {
+      setIsSubmitting(false);
+      console.error('Error creating group:', err);
+      
       Swal.fire({
         icon: 'error',
-        title: 'Failed to Create Group',
-        text: 'There was an error creating your group. Please try again.'
+        title: 'Error',
+        text: 'Failed to create group. Please try again.',
       });
-      console.error('Error creating group:', err);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="create-group-container">
-      <h2>Create New Community Group</h2>
+      <GroupNav currentPage="create" />
+      
+      <h2 className="page-title">Create New Community Group</h2>
       
       <form onSubmit={handleSubmit} className="create-group-form">
         <div className="form-group">
@@ -129,6 +132,21 @@ const CreateGroup = () => {
             ))}
           </select>
           {errors.cuisineType && <span className="error-message">{errors.cuisineType}</span>}
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="imageUrl">Image URL (Optional)</label>
+          <input
+            type="text"
+            id="imageUrl"
+            name="imageUrl"
+            value={formData.imageUrl}
+            onChange={handleChange}
+            placeholder="https://example.com/image.jpg"
+            className={errors.imageUrl ? 'error' : ''}
+          />
+          {errors.imageUrl && <span className="error-message">{errors.imageUrl}</span>}
+          <span className="form-hint">Add an image URL to represent your group</span>
         </div>
         
         <div className="form-group">
