@@ -1,0 +1,250 @@
+ /* Main comment container styling */
+.comments-container {
+  margin: 20px 0;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Comment list styling */
+.comments-list {
+  margin-top: 15px;
+}
+
+/* Individual comment item styling */
+.comment-item {
+  background-color: white;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border-left: 3px solid #2e7d32; /* Green accent */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* User's own comments styling */
+.user-comment {
+  background-color: #f1f8e9; /* Light green background */
+  border-left: 3px solid #1b5e20; /* Darker green accent */
+}
+
+/* Selected comment styling */
+.selected-comment {
+  background-color: #e8f5e9; /* Lighter green for selected state */
+  border: 1px solid #2e7d32;
+}
+
+/* Comment actions container */
+.comment-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Comment buttons styling */
+.comment-btn, .edit-btn, .delete-btn, .cancel-btn {
+  font-weight: 500;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.comment-btn {
+  background-color: #2e7d32; /* Green */
+  color: white;
+}
+
+.edit-btn {
+  background-color: #212121; /* Black */
+  color: white;
+}
+
+.delete-btn {
+  background-color: #b71c1c; /* Red for delete */
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #616161; /* Dark gray */
+  color: white;
+}
+
+.comment-btn:hover, .edit-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+.cancel-btn:hover {
+  background-color: #757575;
+}
+
+/* Add comment section styling */
+.add-comment-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Textarea styling */
+.add-comment-section textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
+}
+
+.add-comment-section textarea:focus {
+  border-color: #2e7d32;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+}
+
+/* Comment input for editing */
+.comment-item input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #2e7d32;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+/* Comment username styling */
+.comment-item strong {
+  color: #212121; /* Black */
+  font-weight: 600;
+}
+
+/* Empty state message */
+.comments-container p {
+  color: #616161;
+  text-align: center;
+  padding: 15px 0;
+  font-style: italic;
+}
+
+/* Loading state */
+.comments-container p:contains("Loading") {
+  color: #2e7d32;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .comment-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .add-comment-section textarea {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+  
+  .comment-btn, .edit-btn, .delete-btn, .cancel-btn {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .comment-item {
+    padding: 12px 10px;
+  }
+}
+
+/* Animation for new comments */
+@keyframes newComment {
+  from { background-color: #c8e6c9; }
+  to { background-color: white; }
+}
+
+.comment-item.new {
+  animation: newComment 2s ease;
+}
+
+/* Comment error and success messages */
+.comment-error {
+  color: #b71c1c;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.comment-success {
+  color: #2e7d32;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+/* Comment editing state */
+.comment-item.editing {
+  border: 1px dashed #2e7d32;
+  background-color: #f1f8e9;
+}
+
+.add-comment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.add-comment-section textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d1d1;
+  border-radius: 6px;
+  resize: vertical;
+  font-family: inherit;
+  background-color: white;
+  color: #333;
+}
+
+.add-comment-section textarea:focus {
+  outline: none;
+  border-color: #1a8754;
+  box-shadow: 0 0 0 2px rgba(26, 135, 84, 0.2);
+}
+
+.comment-btn {
+  background-color: #1a8754;
+  color: white;
+  font-weight: 500;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-end;
+}
+
+.comment-btn:hover {
+  background-color: #146c43;
+}
+
+.comment-btn:active {
+  transform: translateY(1px);
+  background-color: #0f5132;
+}
