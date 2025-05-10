@@ -5,15 +5,13 @@ import Home from './pages/Home';
 import { UserProvider } from './pages/UserContext'; 
 import Profile from './pages/Profile';
 import CreatePost from './pages/CreatePost';
+import Comments from './pages/Comments';
 
 // Import group management components
 import GroupList from './components/GroupList';
 import GroupDetail from './components/GroupDetail';
 import CreateGroup from './components/CreateGroup';
 import EditGroup from './components/EditGroup';
-=======
-import Comments from './pages/Comments';
-
 
 function App() {
   return (

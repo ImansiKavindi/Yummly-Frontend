@@ -5,6 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'; // ✅ SweetAlert2
 import '../styles/createpost.css'; // ✅ External CSS
 
+// Create axios instance with base URL
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080',
+  headers: {
+    'Content-Type': 'multipart/form-data'
+  }
+});
+
 function CreatePost() {
   const { user } = useUser();
   const [title, setTitle] = useState('');
@@ -33,13 +41,7 @@ function CreatePost() {
     if (video) formData.append('video', video);
 
     try {
-      const response = await axios.post(
-        'http://localhost:8080/api/posts/create',
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }
-      );
+      const response = await api.post('/api/posts/create', formData);
 
       console.log('✅ Post created:', response.data);
       Swal.fire({
@@ -55,7 +57,7 @@ function CreatePost() {
       Swal.fire({
         icon: 'error',
         title: 'Failed',
-        text: 'Something went wrong while creating your post.',
+        text: error.response?.data?.message || 'Something went wrong while creating your post.',
       });
     }
   };
