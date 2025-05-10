@@ -310,6 +310,9 @@ function Home() {
         <button onClick={() => navigate('/profile')} className="btn profile-btn">
           Your Profile
         </button>
+        <button onClick={() => navigate('/groups')} className="btn groups-btn">
+          Community Groups
+        </button>
       </div>
 
       <div className="posts-container">

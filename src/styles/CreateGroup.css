@@ -1,0 +1,155 @@
+.create-group-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.create-group-container h2 {
+  color: #333;
+  margin-bottom: 25px;
+}
+
+.create-group-form {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #FF6B35;
+  outline: none;
+}
+
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: #F44336;
+}
+
+.error-message {
+  color: #F44336;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.char-counter {
+  display: block;
+  text-align: right;
+  font-size: 14px;
+  color: #777;
+  margin-top: 5px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.submit-btn {
+  background-color: #FF6B35;
+  color: white;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background-color: #E85A2A;
+}
+
+.submit-btn:disabled {
+  background-color: #ffaa8c;
+  cursor: not-allowed;
+}
+
+.create-group-tips {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #FF6B35;
+}
+
+.create-group-tips h3 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.create-group-tips ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.create-group-tips li {
+  margin-bottom: 10px;
+  color: #555;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .create-group-form {
+    padding: 20px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .cancel-btn,
+  .submit-btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .cancel-btn {
+    order: 2;
+  }
+  
+  .submit-btn {
+    order: 1;
+  }
+} 

@@ -41,7 +41,9 @@ body {
     font-weight: bold;
   }
   
- 
+  .groups-btn {
+    background: linear-gradient(to right, #9e3102ac, #f1c09bb4);
+  }
   
   .posts-container {
     display: flex;
